@@ -1,0 +1,26 @@
+# Entornos virtuales
+venv/
+.venv/
+env/
+
+# Archivos de entorno local y contraseñas
+.env
+
+# Bases de datos locales
+*.db
+*.sqlite3
+
+# Python bytecode y caché
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Archivos del sistema
+.DS_Store
+
+# Configuración de IDE y linters
+.vscode/
+.idea/
+pyrightconfig.json
+
