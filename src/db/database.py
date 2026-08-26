@@ -1,113 +1,97 @@
-from datetime import datetime, date, time
 from typing import Generator
 from sqlalchemy import create_engine,Column, DateTime, func, text
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 from src.core.config import settings
 import math
+import re
+
+IDENTIFIER_REGEX = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)?$")
 
 Base = declarative_base()
 
 db_url = settings.DATABASE_URL or ""
-engine = create_engine(db_url)
+engine = create_engine(
+    db_url,
+    connect_args={
+        "options": "-c timezone=America/Argentina/Buenos_Aires"
+    }
+)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 class TimestampMixin:
-    fecha_creacion = Column(DateTime, server_default=func.now(), index=True)
-    fecha_modificacion = Column(
-        DateTime, server_default=func.now(), onupdate=func.now(), index=True
-    )
+    create_at = Column(DateTime, server_default=func.now(), index=True)
+    update_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), index=True)
 
-def get_db() -> Generator:
-    """Dependency to inject database session into request scope."""
+def get_db() -> Generator[Session, None, None]:
+    """Obtiene una instancia de la sesion de la base de datos."""
     db = SessionLocal()
     try:
-        db.execute(text("SET TIME ZONE 'America/Argentina/Buenos_Aires'"))
         yield db
-        db.commit()
     except Exception as e:
         db.rollback()
-        raise e
+        raise
     finally:
         db.close()
 
 def connection(
     proc_name: str,
-    proc_params: dict | None,
-    db: Session | None = None,
-    timezone: str = 'America/Argentina/Buenos_Aires'
+    proc_params: dict | None = None,
+    db: Session | None = None
 ) -> dict:
+    """Ejecuta un procedimiento almacenado y devuelve el resultado."""
     if db is None:
-        raise Exception("La session de la base de datos no es valida")
-    try:
-        db.execute(text(f"SET TIME ZONE '{timezone}'"))
-    except Exception as e:
-        raise Exception(f"Error al configurar la zona horaria: {str(e)}")
+        raise ValueError("La sesión de la base de datos no es válida")
     
-    proc_params = proc_params or {}
+    if not proc_name or not proc_name.startswith("sp_"):
+        raise ValueError("El procedimiento debe especificar un nombre válido que comience con 'sp_'.")
+    
+    if not IDENTIFIER_REGEX.match(proc_name):
+        raise ValueError(f"Nombre de procedimiento inválido: '{proc_name}'")
 
-    def convert_fila_a_dict(rows, colum_names):
-        """Convierte una fila de SQLAlchemy a un diccionario."""
-        try: 
-            dict_filas = []
-            cantidad_paginas = None
+    params = (proc_params or {}).copy()
+
+    for key in params.keys():
+        if not IDENTIFIER_REGEX.match(key):
+            raise ValueError(f"Nombre de parámetro inválido: '{key}'")
+    
+    cantidad_filas = params.get("cantidad_filas")
+    pagina = params.get("pagina")
+
+    if pagina is not None and cantidad_filas is not None:
+        if pagina < 1 or cantidad_filas < 1:
+            raise ValueError("Los parámetros 'pagina' y 'cantidad_filas' deben ser mayores o iguales a 1.")
+        params["cantidad_skip"] = (pagina - 1) * cantidad_filas
+        del params["pagina"]
+
+    try:
+        if params:
+            named_args = ", ".join(f"{k} := :{k}" for k in params.keys())
+            query = text(f"SELECT * FROM {proc_name}({named_args})")
+            result = db.execute(query, params)
+        else:
+            query = text(f"SELECT * FROM {proc_name}()")
+            result = db.execute(query)
+
+        rows = [dict(row) for row in result.mappings()]
+        cantidad_paginas = None
+
+        if rows:
+            if "total_registros" in rows[0] and cantidad_filas:
+                total_registros = rows[0]["total_registros"]
+                cantidad_paginas = math.ceil(total_registros / cantidad_filas)
 
             for row in rows:
-                row_dict = {}
-                
-                for index, column in enumerate(colum_names):
-                    value = row[index]
-                    
-                    if column == "total_registros" and cantidad_paginas is None and proc_params.get("cantidad_filas"):
-                        cantidad__paginas = math.ceil(
-                            value / proc_params["cantidad_filas"]
-                        )
-                        continue
-                    
-                    if isinstance(value,list):
-                        value = [v for v in value]
-                    elif isinstance(value, datetime):
-                        value = value.strftime("%d/%m/%Y %H:%M:%S")
-                    elif isinstance(value, date): 
-                        value = value.strftime("%d/%m/%Y")
-                    elif isinstance(value, time):
-                        value = value.strftime("%H:%M:%S")
-                    
-                    row_dict[column] = value
-                
-                dict_filas.append(row_dict)
-            
-            return dict_filas, cantidad_paginas
-        
-        except Exception as e:
-            raise Exception(f"Error al convertir fila a diccionario: {str(e)}")
+                row.pop("total_registros", None)
 
-    try:
-        if proc_params:
-            if proc_params.get("pagina"):
-                proc_params["cantidad_skip"] = (proc_params["pagina"] - 1) * proc_params["cantidad_filas"]
-                del proc_params["pagina"]
-            named_args = ", ".join(f"{k} := :{k}" for k in proc_params.keys())
-            query = f"SELECT * FROM {proc_name}({named_args})"
-            result = db.execute(text(query), proc_params)
-        else:
-            query = f"SELECT * FROM {proc_name}()"
-            result = db.execute(text(query))
-        
-        rows = result.fetchall()
-        column_names = result.keys()
-
-        if len(rows) > 0:
-            dict_rows, cantidad_paginas = convert_fila_a_dict(rows, column_names)
             return {
-                "rows": dict_rows,
+                "rows": rows,
                 "cantidad_paginas": cantidad_paginas,
             }
-        else:
-            return {"rows": [], "cantidad_paginas": None}
 
+        return {"rows": [], "cantidad_paginas": None}
 
     except Exception as e:
         db.rollback()
-        raise Exception(f"Error al obtener datos: {str(e)}")
+        raise Exception(f"Error al obtener datos de {proc_name}: {str(e)}") from e
             
