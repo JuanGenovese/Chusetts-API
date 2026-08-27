@@ -2,10 +2,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.core.config import settings
 
-from src.domains.auth.routes import router as auth_router
-from src.domains.caja.routes import router as caja_router
-from src.domains.inventario.routes import router as inventario_router
+from src.domains.compras.routes import router as compras_router
+from src.domains.gestion.routes import router as gestion_router
+from src.domains.usuarios.routes import router as usuarios_router
 from src.domains.ventas.routes import router as ventas_router
+
+
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -32,7 +34,7 @@ def health_check():
 
 
 # Register domain routers under /api
-app.include_router(auth_router, prefix=settings.API_V1_STR)
-app.include_router(caja_router, prefix=settings.API_V1_STR)
-app.include_router(inventario_router, prefix=settings.API_V1_STR)
+app.include_router(compras_router, prefix=settings.API_V1_STR)
+app.include_router(gestion_router, prefix=settings.API_V1_STR)
+app.include_router(usuarios_router, prefix=settings.API_V1_STR)
 app.include_router(ventas_router, prefix=settings.API_V1_STR)
