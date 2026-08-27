@@ -8,10 +8,10 @@ from src.domains.usuarios.schemas import (
 )
 from src.domains.usuarios.services import UsuariosService
 
-router = APIRouter(prefix="/auth", tags=["Auth"])
+router = APIRouter(prefix="/usuarios", tags=["UsuariosADM"])
 
 
-@router.post("/usuarios-adm", status_code=status.HTTP_201_CREATED)
+@router.post("/adm", status_code=status.HTTP_201_CREATED)
 def crear_nuevo_usuario_adm(
     usuario_data: UsuarioAdmCreate,
     db: Session = Depends(get_db)
@@ -40,7 +40,7 @@ def crear_nuevo_usuario_adm(
             detail=str(e)
         )
 
-@router.get("/usuarios-adm", status_code=status.HTTP_200_OK)
+@router.get("/adm", status_code=status.HTTP_200_OK)
 def obtener_usuarios_adm(
     db: Session = Depends(get_db)
 ):
@@ -68,7 +68,7 @@ def obtener_usuarios_adm(
             detail=str(e)
         )
 
-@router.patch("/usuarios-adm/{usuario_id}/datos", status_code=status.HTTP_200_OK)
+@router.patch("/adm/{usuario_id}/datos", status_code=status.HTTP_200_OK)
 def actualizar_datos_usuario_adm(
     usuario_id: int,
     usuario_data: UsuarioAdmUpdateDatos,
@@ -98,7 +98,7 @@ def actualizar_datos_usuario_adm(
             detail=str(e)
         )
 
-@router.patch("/usuarios-adm/{usuario_id}/rol", status_code=status.HTTP_200_OK)
+@router.patch("/adm/{usuario_id}/rol", status_code=status.HTTP_200_OK)
 def actualizar_rol_usuario_adm(
     usuario_id: int,
     usuario_data: UsuarioAdmUpdateRol,
@@ -128,7 +128,7 @@ def actualizar_rol_usuario_adm(
             detail=str(e)
         )
 
-@router.patch("/usuarios-adm/{usuario_id}/estado", status_code=status.HTTP_200_OK)
+@router.patch("/adm/{usuario_id}/estado", status_code=status.HTTP_200_OK)
 def cambiar_estado_usuario_adm(
     usuario_id: int,
     activo: bool,
