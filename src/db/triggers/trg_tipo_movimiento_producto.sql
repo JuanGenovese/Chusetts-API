@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION valida_tipo_movimiento_producto() RETURNS trigger AS $$
+CREATE OR REPLACE FUNCTION sp_valida_tipo_movimiento_producto() RETURNS trigger AS $$
 BEGIN
   IF (
     SELECT t.tipo 
@@ -17,4 +17,4 @@ DROP TRIGGER IF EXISTS trg_valida_tipo_mov_producto ON "PRODUCTOS_X_MOVIMIENTOS"
 
 CREATE TRIGGER trg_valida_tipo_mov_producto
 BEFORE INSERT OR UPDATE ON "PRODUCTOS_X_MOVIMIENTOS"
-FOR EACH ROW EXECUTE FUNCTION valida_tipo_movimiento_producto();
+FOR EACH ROW EXECUTE FUNCTION sp_valida_tipo_movimiento_producto();
