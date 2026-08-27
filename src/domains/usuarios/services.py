@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from src.db.database import connection
 
-class AuthService:
+class UsuariosService:
     def __init__(self, db: Session):
         self.db = db
 
