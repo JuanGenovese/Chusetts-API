@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from src.db.database import get_db
-from src.domains.usuarios.schemas import (
+from src.domains.usuarios.adm.schemas import (
     UsuarioAdmCreate,
     UsuarioAdmUpdateDatos,
     UsuarioAdmUpdateRol,
 )
-from src.domains.usuarios.services import UsuariosService
+from src.domains.usuarios.adm.services import UsuariosADMService
 
 router = APIRouter(prefix="/usuarios", tags=["UsuariosADM"])
 
@@ -18,7 +18,7 @@ def crear_nuevo_usuario_adm(
 ):
     """Crea un nuevo usuario del lado administrativo"""
     try:
-        service = UsuariosService(db)
+        service = UsuariosADMService(db)
         response = service.crear_usuario_adm(usuario_data.model_dump())
 
         rows = response.get("rows", [])
@@ -46,7 +46,7 @@ def obtener_usuarios_adm(
 ):
     """Obtiene todos los usuarios administrativos"""
     try:
-        service = UsuariosService(db)
+        service = UsuariosADMService(db)
         response = service.get_usuarios_adm()
 
         rows = response.get("rows", [])
@@ -76,7 +76,7 @@ def actualizar_datos_usuario_adm(
 ):
     """Actualiza nombre, apellido y/o DNI de un usuario administrativo"""
     try:
-        service = UsuariosService(db)
+        service = UsuariosADMService(db)
         response = service.actualizar_usuario_adm(usuario_id, usuario_data.model_dump())
 
         rows = response.get("rows", [])
@@ -106,7 +106,7 @@ def actualizar_rol_usuario_adm(
 ):
     """Actualiza el rol de un usuario administrativo"""
     try:
-        service = UsuariosService(db)   
+        service = UsuariosADMService(db)   
         response = service.actualizar_rol_usuario_adm(usuario_id, usuario_data.rol_id)
 
         rows = response.get("rows", [])
@@ -136,7 +136,7 @@ def cambiar_estado_usuario_adm(
 ):
     """Activa o desactiva un usuario administrativo"""
     try:
-        service = UsuariosService(db)
+        service = UsuariosADMService(db)
         response = service.cambiar_estado_usuario_adm(usuario_id, activo)
 
         rows = response.get("rows", [])
