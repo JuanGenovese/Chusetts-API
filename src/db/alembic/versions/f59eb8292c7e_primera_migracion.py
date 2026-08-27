@@ -251,6 +251,49 @@ def upgrade() -> None:
     op.create_index(op.f('ix_PRODUCTOS_X_MOVIMIENTOS_id'), 'PRODUCTOS_X_MOVIMIENTOS', ['id'], unique=False)
     # ### end Alembic commands ###
 
+     # Seed: ROLES_ADM
+    roles_adm_table = sa.table('ROLES_ADM',
+        sa.column('id', sa.Integer),
+        sa.column('rol', sa.String)
+    )
+    op.bulk_insert(roles_adm_table, [
+        {'id': 0, 'rol': 'DEV'},
+        {'id': 1, 'rol': 'ADMIN'},
+        {'id': 2, 'rol': 'CAJERO'}
+    ])
+
+    # Seed: ROLES_CLI
+    roles_cli_table = sa.table('ROLES_CLI',
+        sa.column('id', sa.Integer),
+        sa.column('rol', sa.String)
+    )
+    op.bulk_insert(roles_cli_table, [
+        {'id': 1, 'rol': 'CLIENTE'}
+    ])
+
+    # Seed: TIPOS_MOVIMIENTOS
+    tipos_table = sa.table('TIPOS_MOVIMIENTOS',
+        sa.column('id', sa.Integer),
+        sa.column('tipo', sa.String)
+    )
+    op.bulk_insert(tipos_table, [
+        {'id': 1, 'tipo': 'VENTA'},
+        {'id': 2, 'tipo': 'COMPRA'},
+        {'id': 3, 'tipo': 'GASTO'}
+    ])
+
+    # Seed: MEDIOS_PAGO
+    medios_pago_table = sa.table('MEDIOS_PAGO',
+        sa.column('id', sa.Integer),
+        sa.column('medio_pago', sa.String)
+    )
+    op.bulk_insert(medios_pago_table, [
+        {'id': 1, 'medio_pago': 'EFECTIVO'},
+        {'id': 2, 'medio_pago': 'MERCADO_PAGO'},
+        {'id': 3, 'medio_pago': 'TARJETA_DEBITO'},
+        {'id': 4, 'medio_pago': 'TARJETA_CREDITO'}
+    ])
+
 
 def downgrade() -> None:
     """Downgrade schema."""
