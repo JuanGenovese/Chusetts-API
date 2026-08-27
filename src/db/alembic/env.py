@@ -46,7 +46,7 @@ def drop_procedures(connection):
                 FROM pg_proc p
                 JOIN pg_namespace n ON p.pronamespace = n.oid
                 WHERE n.nspname NOT IN ('pg_catalog', 'information_schema')
-                AND (p.proname LIKE 'sp_%' OR p.proname LIKE 'trg_%')
+                AND (p.proname ILIKE 'sp_%' OR p.proname ILIKE 'trg_%')
                 AND p.prokind IN ('f', 'p')
             """)
         ).fetchall()
@@ -65,13 +65,11 @@ def drop_procedures(connection):
             if not HAS_TQDM:
                 print(f"  ✓ Eliminada: {rec.function_name}({rec.args})")
         
-        connection.commit()
         print("✅ Todas las funciones/procedimientos han sido eliminados correctamente")
         print("=" * 80 + "\n")
         
     except Exception as e:
         print(f"❌ Error eliminando funciones: {e}")
-        connection.rollback()
         raise
 
 
@@ -91,17 +89,20 @@ def load_stored_procedures(connection):
             print("=" * 80 + "\n")
             return
 
-        # Buscar recursivamente todos los .sql dentro de src/ (domains, db, etc.)
         src_dir = Path(__file__).parent.parent.parent
+        db_dir = src_dir / "db"
+        target_dirs = [db_dir / "procedures", db_dir / "triggers"]
         
         print("\n" + "=" * 80)
         print("📂 Cargando stored procedures y triggers...")
-        print(f"📍 Directorio raíz: {src_dir}")
         
-        sql_files = sorted(src_dir.rglob("*.sql"))
+        sql_files = []
+        for target_dir in target_dirs:
+            if target_dir.exists():
+                sql_files.extend(sorted(target_dir.rglob("*.sql")))
         
         if not sql_files:
-            print("⚠️  No se encontraron archivos SQL para ejecutar")
+            print("⚠️  No se encontraron archivos SQL en procedures/ o triggers/ para ejecutar")
             print("=" * 80 + "\n")
             return
         
@@ -134,13 +135,11 @@ def load_stored_procedures(connection):
                 print(f"\n❌ Error ejecutando {sql_file.name}: {e}")
                 raise
         
-        connection.commit()
         print("\n✅ Se cargaron todos los stored procedures y triggers correctamente")
         print("=" * 80 + "\n")
         
     except Exception as e:
         print(f"\n❌ Error cargando stored procedures: {e}")
-        connection.rollback()
         raise
 
 
