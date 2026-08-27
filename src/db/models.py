@@ -1,29 +1,38 @@
-from src.db.database import Base
-from src.domains.auth.models import RoleAdm, RoleCli, UsuarioAdm, UsuarioCli
-from src.domains.inventario.models import (
+from src.db.modelos.usuarios import (
+    UsuarioAdm,
+    UsuarioCli,
+    RoleAdm,
+    RoleCli,
+    Puntos,
+)
+
+from src.db.modelos.ventas import (
+    TurnoCaja,
+    Cupon,
+    CuponUsuario,
+    Producto,
+    ProductoXMovimiento
+)
+
+from src.db.modelos.compras import (
     Stock,
     StockXMovimiento,
-    ProductoComposicion,
     Proveedor,
     StockXProveedor,
+    ProductoComposicion
 )
-from src.domains.caja.models import TurnoCaja
-from src.domains.gestion.models import (
+
+from src.db.modelos.gestion import (
     TiposMovimientos,
     Movimiento,
     MovimientoVentas,
     MovimientoCompra,
     MovimientoGasto,
     MediosPagoxMovimiento,
-    MedioPago,
+    MedioPago
 )
-from src.domains.ventas.models import (
-    Producto,
-    ProductoXMovimiento,
-    Cupon,
-    CuponUsuario,
-    Punto,
-)
+
+from src.db.database import Base
 
 __all__ = [
     "Base",
@@ -48,5 +57,5 @@ __all__ = [
     "ProductoXMovimiento",
     "Cupon",
     "CuponUsuario",
-    "Punto",
+    "Puntos",
 ]

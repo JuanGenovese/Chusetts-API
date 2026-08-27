@@ -1,25 +1,6 @@
+from src.db.database import Base
 from sqlalchemy import Column, Integer, String, Boolean, Date, ForeignKey
 from sqlalchemy.orm import relationship
-from src.db.database import Base
-
-
-class RoleAdm(Base):
-    __tablename__ = "ROLES_ADM"
-
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    rol = Column(String(25), unique=True, nullable=False)
-
-    usuarios = relationship("UsuarioAdm", back_populates="role")
-
-
-class RoleCli(Base):
-    __tablename__ = "ROLES_CLI"
-
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    rol = Column(String(25), unique=True, nullable=False)
-
-    usuarios = relationship("UsuarioCli", back_populates="role")
-
 
 class UsuarioAdm(Base):
     __tablename__ = "USUARIOS_ADM"
@@ -34,7 +15,14 @@ class UsuarioAdm(Base):
     role = relationship("RoleAdm", back_populates="usuarios")
     turnos = relationship("TurnoCaja", back_populates="usuario_adm")
 
+class RoleAdm(Base):
+    __tablename__ = "ROLES_ADM"
 
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    rol = Column(String(25), unique=True, nullable=False)
+
+    usuarios = relationship("UsuarioAdm", back_populates="role")
+    
 class UsuarioCli(Base):
     __tablename__ = "USUARIOS_CLI"
 
@@ -51,3 +39,21 @@ class UsuarioCli(Base):
     role = relationship("RoleCli", back_populates="usuarios")
     puntos = relationship("Punto", back_populates="usuario_cli")
     cupones = relationship("CuponUsuario", back_populates="usuario_cli")
+
+class RoleCli(Base):
+    __tablename__ = "ROLES_CLI"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    rol = Column(String(25), unique=True, nullable=False)
+
+    usuarios = relationship("UsuarioCli", back_populates="role")
+
+class Puntos(Base):
+    __tablename__ = "PUNTOS"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    usuario_cli_id = Column(Integer, ForeignKey("USUARIOS_CLI.id"), nullable=False)
+    cantidad = Column(Integer, nullable=False)
+    fecha = Column(Date, nullable=False)
+
+    usuario_cli = relationship("UsuarioCli", back_populates="puntos")
