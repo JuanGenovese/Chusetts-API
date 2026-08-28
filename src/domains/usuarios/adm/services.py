@@ -14,7 +14,7 @@ class UsuariosADMService:
             'p_nombre': datos.get('nombre'),
             'p_apellido': datos.get('apellido'),
             'p_dni': datos.get('dni'),
-            'p_rol_id': datos.get('rol_id')
+            'p_rol_adm_id': datos.get('rol_id')
         }
         response = connection('sp_crear_usuario_adm', params, db=self.db)
         return response
