@@ -10,36 +10,6 @@ from src.domains.usuarios.adm.services import UsuariosADMService
 
 router = APIRouter(prefix="/usuarios", tags=["UsuariosADM"])
 
-
-@router.post("/adm", status_code=status.HTTP_201_CREATED)
-def crear_nuevo_usuario_adm(
-    usuario_data: UsuarioAdmCreate,
-    db: Session = Depends(get_db)
-):
-    """Crea un nuevo usuario del lado administrativo"""
-    try:
-        service = UsuariosADMService(db)
-        response = service.crear_usuario_adm(usuario_data.model_dump())
-
-        rows = response.get("rows", [])
-        if not rows:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="No se pudo crear el usuario"
-            )
-
-        return {
-            "message": "Usuario administrativo creado exitosamente",
-            "data": rows[0]
-        }
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
-
 @router.get("/adm", status_code=status.HTTP_200_OK)
 def obtener_usuarios_adm(
     db: Session = Depends(get_db)
@@ -60,6 +30,42 @@ def obtener_usuarios_adm(
             "message": "Usuarios administrativos obtenidos exitosamente",
             "data": rows
         }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+
+@router.post("/adm", status_code=status.HTTP_201_CREATED)
+def crear_nuevo_usuario_adm(
+    usuario_data: UsuarioAdmCreate,
+    db: Session = Depends(get_db)
+):
+    """Crea un nuevo usuario del lado administrativo"""
+    try:
+        service = UsuariosADMService(db)
+        response = service.crear_usuario_adm(usuario_data.model_dump())
+
+        rows = response.get("rows", [])
+        if not rows:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No se pudo crear el usuario"
+            )
+            
+        db.commit()
+        return {
+            "message": "Usuario administrativo creado exitosamente",
+            "data": rows[0]
+        }
+    
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
     except HTTPException:
         raise
     except Exception as e:
