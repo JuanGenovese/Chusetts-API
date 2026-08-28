@@ -1,6 +1,6 @@
 CREATE OR REPLACE FUNCTION sp_cambiar_estado_usuario_adm(
     p_id INT,
-    p_activo BOOLEAN
+    p_estado BOOLEAN
 ) RETURNS table (
     id INT,
     nombre VARCHAR,
@@ -18,7 +18,7 @@ BEGIN
 
     UPDATE public."USUARIOS_ADM" ua
     SET
-        activo = p_activo
+        activo = p_estado
     WHERE ua.id = p_id;
     
     RETURN QUERY
@@ -27,7 +27,7 @@ BEGIN
         ua.nombre,
         ua.apellido, 
         ua.dni, 
-        ua.rol_id, 
+        ua.rol_adm_id, 
         ua.activo
     FROM public."USUARIOS_ADM" ua
     WHERE ua.id = p_id;

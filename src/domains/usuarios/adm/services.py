@@ -32,7 +32,7 @@ class UsuariosADMService:
     def actualizar_rol_usuario_adm(self, usuario_id: int, rol_id: int) -> dict:
         params = {
             'p_id': usuario_id,
-            'p_rol_id': rol_id
+            'p_rol_adm_id': rol_id
         }
         response = connection('sp_actualizar_rol_usuario_adm', params, db=self.db)
         return response

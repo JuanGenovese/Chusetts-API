@@ -17,7 +17,7 @@ BEGIN
     END IF;
 
     IF NOT EXISTS (
-        SELECT 1 FROM public."ROLES_ADM" WHERE id = p_rol_adm_id
+        SELECT 1 FROM public."ROLES_ADM" ra WHERE ra.id = p_rol_adm_id
     ) THEN
         RAISE EXCEPTION 'El rol ADM con ID % no existe.', p_rol_adm_id;
     END IF;
