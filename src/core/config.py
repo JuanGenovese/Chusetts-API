@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int 
 
     # Database
-    DATABASE_URL: Optional[str]
+    DATABASE_URL: Optional[str] = None
     DB_CONNECTION: Optional[str]
     DB_HOST: Optional[str]
     DB_PORT: Optional[int] = 5432
