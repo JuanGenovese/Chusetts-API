@@ -37,7 +37,7 @@ BEGIN
         ua."nombre",
         ua."apellido", 
         ua."dni", 
-        ua."rol_id", 
+        ua."rol_adm_id", 
         ua."activo"
     FROM public."USUARIOS_ADM" ua
     WHERE ua.id = p_id;
