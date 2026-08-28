@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from src.db.database import get_db
-from src.domains.gastos.services import GastosService
-from src.domains.gastos.schemas import GastosCreate
+from src.domains.gestion.services import GastosService
+from src.domains.gestion.schemas import GastosCreate
 
 router = APIRouter(prefix="/gastos", tags=["Gastos  Varios"])
 
