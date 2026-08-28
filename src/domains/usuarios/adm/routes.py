@@ -96,6 +96,11 @@ def actualizar_datos_usuario_adm(
             "message": "Datos del usuario actualizados exitosamente",
             "data": rows
         }
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
     except HTTPException:
         raise
     except Exception as e:
