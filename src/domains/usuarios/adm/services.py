@@ -4,7 +4,11 @@ from src.db.database import connection
 class UsuariosADMService:
     def __init__(self, db: Session):
         self.db = db
-
+    
+    def get_usuarios_adm(self) -> dict:
+        response = connection('sp_get_usuarios_adm', {}, db=self.db)
+        return response
+     
     def crear_usuario_adm(self, datos: dict) -> dict:
         params = {
             'p_nombre': datos.get('nombre'),
@@ -13,10 +17,6 @@ class UsuariosADMService:
             'p_rol_id': datos.get('rol_id')
         }
         response = connection('sp_crear_usuario_adm', params, db=self.db)
-        return response
-
-    def get_usuarios_adm(self) -> dict:
-        response = connection('sp_get_usuarios_adm', {}, db=self.db)
         return response
     
     def actualizar_usuario_adm(self, usuario_id: int, datos: dict) -> dict:
