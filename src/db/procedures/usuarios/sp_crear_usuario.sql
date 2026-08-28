@@ -2,7 +2,7 @@ CREATE OR REPLACE FUNCTION sp_crear_usuario_adm(
     p_nombre VARCHAR(50),
     p_apellido VARCHAR(50),
     p_dni VARCHAR(20),
-    p_rol_adm_id INT DEFAULT 1
+    p_rol_adm_id INT
 ) RETURNS INT LANGUAGE plpgsql AS $$
 DECLARE
     v_usuario_id INT;
@@ -18,7 +18,7 @@ BEGIN
     IF NOT EXISTS (
         SELECT 1 FROM public."ROLES_ADM" WHERE id = p_rol_adm_id
     ) THEN
-        RAISE EXCEPTION 'El rol ADM con ID % no existe.', p_rol_adm_id;
+        RAISE EXCEPTION 'El rol administrativo con ID % no existe.', p_rol_adm_id;
     END IF;
 
     INSERT INTO public."USUARIOS_ADM" (
