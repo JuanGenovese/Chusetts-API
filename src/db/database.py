@@ -93,5 +93,14 @@ def connection(
 
     except Exception as e:
         db.rollback()
+        orig = getattr(e, "orig", e)
+        if hasattr(orig, "diag") and getattr(orig.diag, "message_primary", None):
+            raise ValueError(orig.diag.message_primary) from e
+            
+        msg = str(e)
+        match = re.search(r"RaiseException\)\s*(.*?)(?:\n|CONTEXT:|$)", msg)
+        if match:
+            raise ValueError(match.group(1).strip()) from e
+
         raise Exception(f"Error al obtener datos de {proc_name}: {str(e)}") from e
             
