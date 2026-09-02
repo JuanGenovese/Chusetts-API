@@ -11,15 +11,16 @@ class Settings(BaseSettings):
     # Security
     SECRET_KEY: str 
     ACCESS_TOKEN_EXPIRE_MINUTES: int 
+    ALGORITHM: str
 
     # Database
     DATABASE_URL: Optional[str] = None
-    DB_CONNECTION: Optional[str]
-    DB_HOST: Optional[str]
-    DB_PORT: Optional[int] = 5432
-    DB_DATABASE: Optional[str]
-    DB_USERNAME: Optional[str]
-    DB_PASSWORD: Optional[str]
+    DB_CONNECTION: str
+    DB_HOST: str
+    DB_PORT: int
+    DB_DATABASE: str
+    DB_USERNAME: str
+    DB_PASSWORD: str
     DB_SCHEMA: str
 
 
