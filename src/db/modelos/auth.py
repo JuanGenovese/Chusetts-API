@@ -9,7 +9,7 @@ class CuentaAuth(Base, TimestampMixin):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     dni = Column(String(50), unique=True, nullable=False, index=True)
     password_hash = Column(String(255), nullable=False)
-    tipo_usuario = Column(String(25), nullable=False)  # 'ADM' | 'CLI'
+    tipo_usuario = Column(String(25), nullable=False)
     usuario_adm_id = Column(Integer, ForeignKey("USUARIOS_ADM.id", ondelete="CASCADE"), nullable=True)
     usuario_cli_id = Column(Integer, ForeignKey("USUARIOS_CLI.id", ondelete="CASCADE"), nullable=True)
     activo = Column(Boolean, default=True, nullable=False)
