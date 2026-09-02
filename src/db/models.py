@@ -1,3 +1,5 @@
+from src.db.modelos.auth import CuentaAuth
+
 from src.db.modelos.usuarios import (
     UsuarioAdm,
     UsuarioCli,
@@ -36,6 +38,7 @@ from src.db.database import Base
 
 __all__ = [
     "Base",
+    "CuentaAuth",
     "RoleAdm",
     "RoleCli",
     "UsuarioAdm",
@@ -59,3 +62,4 @@ __all__ = [
     "CuponUsuario",
     "Puntos",
 ]
+
