@@ -151,6 +151,7 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        include_schemas=True,
     )
 
     with context.begin_transaction():
@@ -166,8 +167,13 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
+        connection.execute(text("CREATE SCHEMA IF NOT EXISTS auth;"))
+        connection.commit()
+
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection,
+            target_metadata=target_metadata,
+            include_schemas=True,
         )
 
         with context.begin_transaction():
@@ -175,6 +181,7 @@ def run_migrations_online() -> None:
             # Ejecutar eliminación y carga de stored procedures/triggers tras aplicar la migración
             drop_procedures(connection)
             load_stored_procedures(connection)
+
 
 
 if context.is_offline_mode():
