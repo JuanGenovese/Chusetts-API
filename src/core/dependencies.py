@@ -10,27 +10,19 @@ from src.db.database import get_db
 from src.db.modelos.auth import CuentaAuth
 from src.domains.auth.services import obtener_cuenta_por_dni
 
-# Esquema de seguridad Bearer Token (auto_error=False para manejar respuestas personalizadas)
 security_scheme = HTTPBearer(auto_error=False)
 
-# Rutas públicas exentas de autenticación global (Puerta 2 Whitelist)
 PUBLIC_ROUTES: set[str] = {
     f"{settings.API_V1_STR}/auth/login",
     f"{settings.API_V1_STR}/auth/register",
     "/api/health",
-    "/docs",
-    "/redoc",
-    "/openapi.json",
+    "/openapi.json"
 }
 
 
 def es_ruta_publica(path: str) -> bool:
-    """Verifica si la ruta solicitada pertenece a la lista blanca de rutas públicas."""
-    if path in PUBLIC_ROUTES:
-        return True
-    if path.startswith("/docs") or path.startswith("/redoc"):
-        return True
-    return False
+    """Verifica si la ruta pertenece a la lista de rutas que no necesitan autenticación."""
+    return path in PUBLIC_ROUTES or path.startswith("/docs") or path.startswith("/redoc")
 
 
 def verificar_autenticacion_global(
