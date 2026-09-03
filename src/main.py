@@ -1,6 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from src.core.config import settings
+from src.core.dependencies import verificar_autenticacion_global
 
 from src.domains.auth.routes import router as auth_router
 from src.domains.compras.routes import router as compras_router
@@ -16,6 +17,7 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json",
+    dependencies=[Depends(verificar_autenticacion_global)]
 )
 
 # CORS middleware configuration
