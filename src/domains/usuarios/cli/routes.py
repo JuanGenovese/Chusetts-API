@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from src.db.database import get_db
+from src.core.dependencies import requerir_roles
 from src.domains.usuarios.cli.schemas import (
     UsuarioCliCreate,
     UsuarioCliUpdateDatos,
@@ -8,7 +9,11 @@ from src.domains.usuarios.cli.schemas import (
 )
 from src.domains.usuarios.cli.services import UsuariosCLIService
 
-router = APIRouter(prefix="/usuarios", tags=["UsuariosCLI"])
+router = APIRouter(
+    prefix="/usuarios", 
+    tags=["UsuariosCLI"],
+    dependencies=[Depends(requerir_roles("ADM"))]
+)
 
 
 @router.get("/cli", status_code=status.HTTP_200_OK)
