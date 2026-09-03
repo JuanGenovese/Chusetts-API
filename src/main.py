@@ -20,7 +20,6 @@ app = FastAPI(
     dependencies=[Depends(verificar_autenticacion_global)]
 )
 
-# CORS middleware configuration
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
@@ -29,14 +28,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 @app.get("/api/health", tags=["Health"])
 def health_check():
-    """Health check endpoint."""
     return {"status": "ok", "project": settings.PROJECT_NAME, "version": settings.PROJECT_VERSION}
 
 
-# Register domain routers under /api
 app.include_router(auth_router, prefix=settings.API_V1_STR)
 app.include_router(compras_router, prefix=settings.API_V1_STR)
 app.include_router(gestion_router, prefix=settings.API_V1_STR)
