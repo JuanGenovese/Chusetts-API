@@ -1,59 +1,43 @@
+from sqlalchemy import true
 from src.db.database import Base
 from sqlalchemy import Column, Integer, String, Boolean, Date, ForeignKey
 from sqlalchemy.orm import relationship
 
-class UsuarioAdm(Base):
-    __tablename__ = "USUARIOS_ADM"
+class Usuarios(Base):
+    __tablename__ = "USUARIOS"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    nombre = Column(String(50), nullable=False)
-    apellido = Column(String(50), nullable=False)
-    dni = Column(String(50), unique=True, nullable=False)
-    rol_adm_id = Column(Integer, ForeignKey("ROLES_ADM.id"), nullable=False)
-    activo = Column(Boolean, default=True, nullable=False)
-
-    role = relationship("RoleAdm", back_populates="usuarios")
-    turnos = relationship("TurnoCaja", back_populates="usuario_adm")
-
-class RoleAdm(Base):
-    __tablename__ = "ROLES_ADM"
-
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    rol = Column(String(25), unique=True, nullable=False)
-
-    usuarios = relationship("UsuarioAdm", back_populates="role")
-    
-class UsuarioCli(Base):
-    __tablename__ = "USUARIOS_CLI"
-
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    rol_cli_id = Column(Integer, ForeignKey("ROLES_CLI.id"), nullable=False)
+    cuenta_id = Column(Integer, ForeignKey("auth.CUENTAS.id", ondelete="CASCADE"), unique=True, nullable=False)
     nombre = Column(String(50), nullable=False)
     apellido = Column(String(50), nullable=False)
     dni = Column(String(50), unique=True, nullable=False)
     email = Column(String(150), unique=True, nullable=False)
     telefono = Column(String(50), nullable=True)
     fecha_nac = Column(Date, nullable=False)
+    rol_id = Column(Integer, ForeignKey("ROLES.id"), nullable=False)
     activo = Column(Boolean, default=True, nullable=False)
 
-    role = relationship("RoleCli", back_populates="usuarios")
-    puntos = relationship("Punto", back_populates="usuario_cli")
-    cupones = relationship("CuponUsuario", back_populates="usuario_cli")
+    cuenta = relationship("CuentaAuth", back_populates="usuario")
+    role = relationship("Roles", back_populates="usuarios")
+    turnos = relationship("TurnoCaja", back_populates="usuario")
+    puntos = relationship("Puntos", back_populates="usuario")
+    cupones = relationship("CuponUsuario", back_populates="usuario")
 
-class RoleCli(Base):
-    __tablename__ = "ROLES_CLI"
+class Roles(Base):
+    __tablename__ = "ROLES"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     rol = Column(String(25), unique=True, nullable=False)
 
-    usuarios = relationship("UsuarioCli", back_populates="role")
+    usuarios = relationship("Usuarios", back_populates="role")
+
 
 class Puntos(Base):
     __tablename__ = "PUNTOS"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    usuario_cli_id = Column(Integer, ForeignKey("USUARIOS_CLI.id"), nullable=False)
+    usuario_id = Column(Integer, ForeignKey("USUARIOS.id"), nullable=False)
     cantidad = Column(Integer, nullable=False)
     fecha = Column(Date, nullable=False)
 
-    usuario_cli = relationship("UsuarioCli", back_populates="puntos")
+    usuario = relationship("Usuarios", back_populates="puntos")
