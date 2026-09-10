@@ -1,4 +1,5 @@
-CREATE OR REPLACE FUNCTION sp_valida_tipo_movimiento_producto() RETURNS trigger AS $$
+CREATE OR REPLACE FUNCTION sp_valida_tipo_movimiento_producto() 
+RETURNS TRIGGER AS $$
 BEGIN
   IF (
     SELECT t.tipo 
