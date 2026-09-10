@@ -1,18 +1,16 @@
 from src.db.modelos.auth import CuentaAuth
 
 from src.db.modelos.usuarios import (
-    UsuarioAdm,
-    UsuarioCli,
-    RoleAdm,
-    RoleCli,
+    Usuarios,
+    Roles,
     Puntos,
 )
 
 from src.db.modelos.ventas import (
-    TurnoCaja,
-    Cupon,
-    CuponUsuario,
-    Producto,
+    TurnosCaja,
+    Cupones,
+    CuponesUsuario,
+    Productos,
     ProductoXMovimiento
 )
 
@@ -26,12 +24,12 @@ from src.db.modelos.compras import (
 
 from src.db.modelos.gestion import (
     TiposMovimientos,
-    Movimiento,
-    MovimientoVentas,
-    MovimientoCompra,
-    MovimientoGasto,
-    MediosPagoxMovimiento,
-    MedioPago
+    Movimientos,
+    MovimientosVentas,
+    MovimientosCompra,
+    MovimientosGasto,
+    MediosPagoxMovimientos,
+    MediosPago
 )
 
 from src.db.database import Base
@@ -39,27 +37,25 @@ from src.db.database import Base
 __all__ = [
     "Base",
     "CuentaAuth",
-    "RoleAdm",
-    "RoleCli",
-    "UsuarioAdm",
-    "UsuarioCli",
+    "Roles",
+    "Usuarios",
     "Stock",
     "StockXMovimiento",
     "ProductoComposicion",
     "Proveedor",
     "StockXProveedor",
-    "TurnoCaja",
+    "TurnosCaja",
     "TiposMovimientos",
-    "Movimiento",
-    "MovimientoVentas",
-    "MovimientoCompra",
-    "MovimientoGasto",
-    "MediosPagoxMovimiento",
-    "MedioPago",
-    "Producto",
+    "Movimientos",
+    "MovimientosVentas",
+    "MovimientosCompra",
+    "MovimientosGasto",
+    "MediosPagoxMovimientos",
+    "MediosPago",
+    "Productos",
     "ProductoXMovimiento",
-    "Cupon",
-    "CuponUsuario",
+    "Cupones",
+    "CuponesUsuario",
     "Puntos",
 ]
 
