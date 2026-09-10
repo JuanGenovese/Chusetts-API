@@ -2,27 +2,27 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from src.db.database import get_db
 from src.core.dependencies import requerir_roles
-from src.domains.usuarios.adm.schemas import (
+from src.domains.usuarios.schemas import (
     UsuarioAdmCreate,
     UsuarioAdmUpdateDatos,
     UsuarioAdmUpdateRol,
 )
-from src.domains.usuarios.adm.services import UsuariosADMService
+from src.domains.usuarios.services import UsuariosService
 
 router = APIRouter(
     prefix="/usuarios", 
-    tags=["UsuariosADM"],
+    tags=["Usuarios"],
     dependencies=[Depends(requerir_roles("ADM"))]
 )
 
-@router.get("/adm", status_code=status.HTTP_200_OK)
-def obtener_usuarios_adm(
+@router.get("/", status_code=status.HTTP_200_OK)
+def obtener_usuarios(
     db: Session = Depends(get_db)
 ):
     """Obtiene todos los usuarios administrativos"""
     try:
-        service = UsuariosADMService(db)
-        response = service.get_usuarios_adm()
+        service = UsuariosService(db)
+        response = service.get_usuarios()
 
         rows = response.get("rows", [])
         if not rows:
@@ -43,15 +43,15 @@ def obtener_usuarios_adm(
             detail=str(e)
         )
 
-@router.post("/adm", status_code=status.HTTP_201_CREATED)
-def crear_nuevo_usuario_adm(
+@router.post("/", status_code=status.HTTP_201_CREATED)
+def crear_nuevo_usuario(
     usuario_data: UsuarioAdmCreate,
     db: Session = Depends(get_db)
 ):
     """Crea un nuevo usuario del lado administrativo"""
     try:
-        service = UsuariosADMService(db)
-        response = service.crear_usuario_adm(usuario_data.model_dump())
+        service = UsuariosService(db)
+        response = service.crear_usuario(usuario_data.model_dump())
 
         rows = response.get("rows", [])
         if not rows:
@@ -79,16 +79,16 @@ def crear_nuevo_usuario_adm(
             detail=str(e)
         )
 
-@router.patch("/adm/{usuario_id}/datos", status_code=status.HTTP_200_OK)
-def actualizar_datos_usuario_adm(
+@router.patch("/{usuario_id}/datos", status_code=status.HTTP_200_OK)
+def actualizar_datos_usuario(
     usuario_id: int,
     usuario_data: UsuarioAdmUpdateDatos,
     db: Session = Depends(get_db)
 ):
     """Actualiza nombre, apellido y/o DNI de un usuario administrativo"""
     try:
-        service = UsuariosADMService(db)
-        response = service.actualizar_usuario_adm(usuario_id, usuario_data.model_dump())
+        service = UsuariosService(db)
+        response = service.actualizar_usuario(usuario_id, usuario_data.model_dump())
 
         rows = response.get("rows", [])
         if not rows:
@@ -114,16 +114,16 @@ def actualizar_datos_usuario_adm(
             detail=str(e)
         )
 
-@router.patch("/adm/{usuario_id}/rol", status_code=status.HTTP_200_OK)
-def actualizar_rol_usuario_adm(
+@router.patch("/{usuario_id}/rol", status_code=status.HTTP_200_OK)
+def actualizar_rol_usuario(
     usuario_id: int,
     usuario_data: UsuarioAdmUpdateRol,
     db: Session = Depends(get_db)
 ):
     """Actualiza el rol de un usuario administrativo"""
     try:
-        service = UsuariosADMService(db)   
-        response = service.actualizar_rol_usuario_adm(usuario_id, usuario_data.rol_id)
+        service = UsuariosService(db)   
+        response = service.actualizar_rol_usuario(usuario_id, usuario_data.rol_id)
 
         rows = response.get("rows", [])
         if not rows:
@@ -144,16 +144,16 @@ def actualizar_rol_usuario_adm(
             detail=str(e)
         )
 
-@router.patch("/adm/{usuario_id}/estado", status_code=status.HTTP_200_OK)
-def cambiar_estado_usuario_adm(
+@router.patch("/{usuario_id}/estado", status_code=status.HTTP_200_OK)
+def cambiar_estado_usuario(
     usuario_id: int,
     activo: bool,
     db: Session = Depends(get_db)
 ):
     """Activa o desactiva un usuario administrativo"""
     try:
-        service = UsuariosADMService(db)
-        response = service.cambiar_estado_usuario_adm(usuario_id, activo)
+        service = UsuariosService(db)
+        response = service.cambiar_estado_usuario(usuario_id, activo)
 
         rows = response.get("rows", [])
         if not rows:
