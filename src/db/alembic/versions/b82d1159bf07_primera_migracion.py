@@ -1,8 +1,8 @@
-"""primera migracion
+"""primera_migracion
 
-Revision ID: f59eb8292c7e
+Revision ID: b82d1159bf07
 Revises: 
-Create Date: 2026-08-27 22:09:17.045268
+Create Date: 2026-09-10 14:15:43.017703
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'f59eb8292c7e'
+revision: str = 'b82d1159bf07'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -42,11 +42,11 @@ def upgrade() -> None:
     op.create_index(op.f('ix_MEDIOS_PAGO_id'), 'MEDIOS_PAGO', ['id'], unique=False)
     op.create_table('PRODUCTOS',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('valor_puntos', sa.Integer(), nullable=True),
     sa.Column('nombre', sa.String(length=150), nullable=False),
     sa.Column('precio_venta', sa.Float(), nullable=False),
     sa.Column('costo_unitario', sa.Float(), nullable=False),
     sa.Column('stock_minimo', sa.Float(), nullable=False),
+    sa.Column('valor_puntos', sa.Integer(), nullable=True),
     sa.Column('activo', sa.Boolean(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
@@ -62,20 +62,13 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_PROVEEDORES_id'), 'PROVEEDORES', ['id'], unique=False)
-    op.create_table('ROLES_ADM',
+    op.create_table('ROLES',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('rol', sa.String(length=25), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('rol')
     )
-    op.create_index(op.f('ix_ROLES_ADM_id'), 'ROLES_ADM', ['id'], unique=False)
-    op.create_table('ROLES_CLI',
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('rol', sa.String(length=25), nullable=False),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('rol')
-    )
-    op.create_index(op.f('ix_ROLES_CLI_id'), 'ROLES_CLI', ['id'], unique=False)
+    op.create_index(op.f('ix_ROLES_id'), 'ROLES', ['id'], unique=False)
     op.create_table('STOCK',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('nombre', sa.String(length=150), nullable=False),
@@ -120,34 +113,35 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_STOCK_X_PROVEEDORES_id'), 'STOCK_X_PROVEEDORES', ['id'], unique=False)
-    op.create_table('USUARIOS_ADM',
+    op.create_table('USUARIOS',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('nombre', sa.String(length=50), nullable=False),
-    sa.Column('apellido', sa.String(length=50), nullable=False),
-    sa.Column('dni', sa.String(length=50), nullable=False),
-    sa.Column('rol_adm_id', sa.Integer(), nullable=False),
-    sa.Column('activo', sa.Boolean(), nullable=False),
-    sa.ForeignKeyConstraint(['rol_adm_id'], ['ROLES_ADM.id'], ),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('dni')
-    )
-    op.create_index(op.f('ix_USUARIOS_ADM_id'), 'USUARIOS_ADM', ['id'], unique=False)
-    op.create_table('USUARIOS_CLI',
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('rol_cli_id', sa.Integer(), nullable=False),
+    sa.Column('cuenta_id', sa.Integer(), nullable=False),
     sa.Column('nombre', sa.String(length=50), nullable=False),
     sa.Column('apellido', sa.String(length=50), nullable=False),
     sa.Column('dni', sa.String(length=50), nullable=False),
     sa.Column('email', sa.String(length=150), nullable=False),
     sa.Column('telefono', sa.String(length=50), nullable=True),
     sa.Column('fecha_nac', sa.Date(), nullable=False),
+    sa.Column('rol_id', sa.Integer(), nullable=False),
     sa.Column('activo', sa.Boolean(), nullable=False),
-    sa.ForeignKeyConstraint(['rol_cli_id'], ['ROLES_CLI.id'], ),
+    sa.ForeignKeyConstraint(['cuenta_id'], ['auth.CUENTAS.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['rol_id'], ['ROLES.id'], ),
     sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('cuenta_id'),
     sa.UniqueConstraint('dni'),
     sa.UniqueConstraint('email')
     )
-    op.create_index(op.f('ix_USUARIOS_CLI_id'), 'USUARIOS_CLI', ['id'], unique=False)
+    op.create_index(op.f('ix_USUARIOS_id'), 'USUARIOS', ['id'], unique=False)
+    op.create_table('CUPONES_USUARIO',
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('usuario_id', sa.Integer(), nullable=False),
+    sa.Column('cupon_id', sa.Integer(), nullable=False),
+    sa.Column('fecha_asignacion', sa.DateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['cupon_id'], ['CUPONES.id'], ),
+    sa.ForeignKeyConstraint(['usuario_id'], ['USUARIOS.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_CUPONES_USUARIO_id'), 'CUPONES_USUARIO', ['id'], unique=False)
     op.create_table('MEDIOS_PAGO_X_MOVIMIENTOS',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('id_movimiento', sa.Integer(), nullable=False),
@@ -183,23 +177,22 @@ def upgrade() -> None:
     op.create_index(op.f('ix_MOVIMIENTOS_GASTO_id'), 'MOVIMIENTOS_GASTO', ['id'], unique=False)
     op.create_table('PUNTOS',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('usuario_cli_id', sa.Integer(), nullable=False),
+    sa.Column('usuario_id', sa.Integer(), nullable=False),
     sa.Column('cantidad', sa.Integer(), nullable=False),
     sa.Column('fecha', sa.Date(), nullable=False),
-    sa.ForeignKeyConstraint(['usuario_cli_id'], ['USUARIOS_CLI.id'], ),
+    sa.ForeignKeyConstraint(['usuario_id'], ['USUARIOS.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_PUNTOS_id'), 'PUNTOS', ['id'], unique=False)
     op.create_table('TURNOS_CAJA',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('usuario_adm_id', sa.Integer(), nullable=False),
+    sa.Column('usuario_id', sa.Integer(), nullable=False),
     sa.Column('fecha_desde', sa.DateTime(), nullable=False),
     sa.Column('fecha_hasta', sa.DateTime(), nullable=True),
-    sa.Column('abierto', sa.Boolean(), nullable=False),
     sa.Column('efectivo_inicial', sa.Float(), nullable=False),
     sa.Column('observacion_apertura', sa.String(length=100), nullable=False),
     sa.Column('observacion_cierre', sa.String(length=100), nullable=True),
-    sa.ForeignKeyConstraint(['usuario_adm_id'], ['USUARIOS_ADM.id'], ),
+    sa.ForeignKeyConstraint(['usuario_id'], ['USUARIOS.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_TURNOS_CAJA_id'), 'TURNOS_CAJA', ['id'], unique=False)
@@ -207,11 +200,14 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('movimiento_id', sa.Integer(), nullable=False),
     sa.Column('turno_caja_id', sa.Integer(), nullable=False),
+    sa.Column('cupon_usr_id', sa.Integer(), nullable=True),
     sa.Column('monto_total', sa.Float(), nullable=False),
     sa.Column('fecha', sa.DateTime(), nullable=False),
-    sa.ForeignKeyConstraint(['movimiento_id'], ['MOVIMIENTOS.id'], ),
+    sa.ForeignKeyConstraint(['cupon_usr_id'], ['CUPONES_USUARIO.id'], ),
+    sa.ForeignKeyConstraint(['movimiento_id'], ['MOVIMIENTOS.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['turno_caja_id'], ['TURNOS_CAJA.id'], ),
     sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('cupon_usr_id'),
     sa.UniqueConstraint('movimiento_id')
     )
     op.create_index(op.f('ix_MOVIMIENTOS_VENTAS_id'), 'MOVIMIENTOS_VENTAS', ['id'], unique=False)
@@ -226,49 +222,31 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_STOCK_X_MOVIMIENTOS_id'), 'STOCK_X_MOVIMIENTOS', ['id'], unique=False)
-    op.create_table('CUPONES_USUARIO',
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('usuario_cli_id', sa.Integer(), nullable=False),
-    sa.Column('cupon_id', sa.Integer(), nullable=False),
-    sa.Column('movimiento_venta_id', sa.Integer(), nullable=True),
-    sa.Column('disponible', sa.Boolean(), nullable=False),
-    sa.ForeignKeyConstraint(['cupon_id'], ['CUPONES.id'], ),
-    sa.ForeignKeyConstraint(['movimiento_venta_id'], ['MOVIMIENTOS_VENTAS.id'], ),
-    sa.ForeignKeyConstraint(['usuario_cli_id'], ['USUARIOS_CLI.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_CUPONES_USUARIO_id'), 'CUPONES_USUARIO', ['id'], unique=False)
     op.create_table('PRODUCTOS_X_MOVIMIENTOS',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('id_movimiento_venta', sa.Integer(), nullable=False),
     sa.Column('id_producto', sa.Integer(), nullable=False),
-    sa.Column('cantidad', sa.Integer(), nullable=False),
+    sa.Column('cantidad_producto', sa.Integer(), nullable=False),
     sa.Column('precio', sa.Float(), nullable=False),
     sa.ForeignKeyConstraint(['id_movimiento_venta'], ['MOVIMIENTOS_VENTAS.id'], ),
     sa.ForeignKeyConstraint(['id_producto'], ['PRODUCTOS.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_PRODUCTOS_X_MOVIMIENTOS_id'), 'PRODUCTOS_X_MOVIMIENTOS', ['id'], unique=False)
+    op.drop_column('CUENTAS', 'usuario_id', schema='auth')
+    op.drop_column('CUENTAS', 'tipo_usuario', schema='auth')
     # ### end Alembic commands ###
 
-     # Seed: ROLES_ADM
-    roles_adm_table = sa.table('ROLES_ADM',
+    # Seed: ROLES
+    roles_table = sa.table('ROLES',
         sa.column('id', sa.Integer),
         sa.column('rol', sa.String)
     )
-    op.bulk_insert(roles_adm_table, [
+    op.bulk_insert(roles_table, [
         {'id': 0, 'rol': 'DEV'},
         {'id': 1, 'rol': 'ADMIN'},
-        {'id': 2, 'rol': 'CAJERO'}
-    ])
-
-    # Seed: ROLES_CLI
-    roles_cli_table = sa.table('ROLES_CLI',
-        sa.column('id', sa.Integer),
-        sa.column('rol', sa.String)
-    )
-    op.bulk_insert(roles_cli_table, [
-        {'id': 1, 'rol': 'CLIENTE'}
+        {'id': 2, 'rol': 'CAJERO'},
+        {'id': 3, 'rol': 'CLIENTE'}
     ])
 
     # Seed: TIPOS_MOVIMIENTOS
@@ -298,10 +276,10 @@ def upgrade() -> None:
 def downgrade() -> None:
     """Downgrade schema."""
     # ### commands auto generated by Alembic - please adjust! ###
+    op.add_column('CUENTAS', sa.Column('tipo_usuario', sa.VARCHAR(length=25), autoincrement=False, nullable=False), schema='auth')
+    op.add_column('CUENTAS', sa.Column('usuario_id', sa.INTEGER(), autoincrement=False, nullable=True), schema='auth')
     op.drop_index(op.f('ix_PRODUCTOS_X_MOVIMIENTOS_id'), table_name='PRODUCTOS_X_MOVIMIENTOS')
     op.drop_table('PRODUCTOS_X_MOVIMIENTOS')
-    op.drop_index(op.f('ix_CUPONES_USUARIO_id'), table_name='CUPONES_USUARIO')
-    op.drop_table('CUPONES_USUARIO')
     op.drop_index(op.f('ix_STOCK_X_MOVIMIENTOS_id'), table_name='STOCK_X_MOVIMIENTOS')
     op.drop_table('STOCK_X_MOVIMIENTOS')
     op.drop_index(op.f('ix_MOVIMIENTOS_VENTAS_id'), table_name='MOVIMIENTOS_VENTAS')
@@ -316,10 +294,10 @@ def downgrade() -> None:
     op.drop_table('MOVIMIENTOS_COMPRA')
     op.drop_index(op.f('ix_MEDIOS_PAGO_X_MOVIMIENTOS_id'), table_name='MEDIOS_PAGO_X_MOVIMIENTOS')
     op.drop_table('MEDIOS_PAGO_X_MOVIMIENTOS')
-    op.drop_index(op.f('ix_USUARIOS_CLI_id'), table_name='USUARIOS_CLI')
-    op.drop_table('USUARIOS_CLI')
-    op.drop_index(op.f('ix_USUARIOS_ADM_id'), table_name='USUARIOS_ADM')
-    op.drop_table('USUARIOS_ADM')
+    op.drop_index(op.f('ix_CUPONES_USUARIO_id'), table_name='CUPONES_USUARIO')
+    op.drop_table('CUPONES_USUARIO')
+    op.drop_index(op.f('ix_USUARIOS_id'), table_name='USUARIOS')
+    op.drop_table('USUARIOS')
     op.drop_index(op.f('ix_STOCK_X_PROVEEDORES_id'), table_name='STOCK_X_PROVEEDORES')
     op.drop_table('STOCK_X_PROVEEDORES')
     op.drop_index(op.f('ix_PRODUCTO_COMPOSICION_id'), table_name='PRODUCTO_COMPOSICION')
@@ -330,10 +308,8 @@ def downgrade() -> None:
     op.drop_table('TIPOS_MOVIMIENTOS')
     op.drop_index(op.f('ix_STOCK_id'), table_name='STOCK')
     op.drop_table('STOCK')
-    op.drop_index(op.f('ix_ROLES_CLI_id'), table_name='ROLES_CLI')
-    op.drop_table('ROLES_CLI')
-    op.drop_index(op.f('ix_ROLES_ADM_id'), table_name='ROLES_ADM')
-    op.drop_table('ROLES_ADM')
+    op.drop_index(op.f('ix_ROLES_id'), table_name='ROLES')
+    op.drop_table('ROLES')
     op.drop_index(op.f('ix_PROVEEDORES_id'), table_name='PROVEEDORES')
     op.drop_table('PROVEEDORES')
     op.drop_index(op.f('ix_PRODUCTOS_id'), table_name='PRODUCTOS')

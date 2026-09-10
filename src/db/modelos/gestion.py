@@ -46,7 +46,7 @@ class MovimientosVentas(Base):
     __tablename__ = "MOVIMIENTOS_VENTAS"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    movimiento_id = Column(Integer, ForeignKey("MOVIMIENTOS.id"), ondelete="CASCADE", unique=True, nullable=False)
+    movimiento_id = Column(Integer, ForeignKey("MOVIMIENTOS.id", ondelete="CASCADE"), unique=True, nullable=False)
     turno_caja_id = Column(Integer, ForeignKey("TURNOS_CAJA.id"), nullable=False)
     cupon_usr_id = Column(Integer, ForeignKey("CUPONES_USUARIO.id"), unique=True, nullable=True)
     monto_total = Column(Float, nullable=False)
