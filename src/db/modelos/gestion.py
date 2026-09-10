@@ -2,7 +2,7 @@ from src.db.database import Base
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 
-class MedioPago(Base):
+class MediosPago(Base):
     __tablename__ = "MEDIOS_PAGO"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
@@ -10,7 +10,7 @@ class MedioPago(Base):
 
     movimientos = relationship("MediosPagoxMovimiento", back_populates="medio_pago")
 
-class MediosPagoxMovimiento(Base):
+class MediosPagoxMovimientos(Base):
     __tablename__ = "MEDIOS_PAGO_X_MOVIMIENTOS"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
@@ -21,7 +21,7 @@ class MediosPagoxMovimiento(Base):
     movimiento = relationship("Movimiento", back_populates="medios_pago")
     medio_pago = relationship("MedioPago", back_populates="movimientos")
 
-class Movimiento(Base):
+class Movimientos(Base):
     __tablename__ = "MOVIMIENTOS"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
@@ -42,12 +42,13 @@ class TiposMovimientos(Base):
 
     movimientos = relationship("Movimiento", back_populates="tipo")
 
-class MovimientoVentas(Base):
+class MovimientosVentas(Base):
     __tablename__ = "MOVIMIENTOS_VENTAS"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    movimiento_id = Column(Integer, ForeignKey("MOVIMIENTOS.id"), unique=True, nullable=False)
+    movimiento_id = Column(Integer, ForeignKey("MOVIMIENTOS.id"), ondelete="CASCADE", unique=True, nullable=False)
     turno_caja_id = Column(Integer, ForeignKey("TURNOS_CAJA.id"), nullable=False)
+    cupon_usr_id = Column(Integer, ForeignKey("CUPONES_USUARIO.id"), unique=True, nullable=True)
     monto_total = Column(Float, nullable=False)
     fecha = Column(DateTime, nullable=False)
 
@@ -56,7 +57,7 @@ class MovimientoVentas(Base):
     productos = relationship("ProductoXMovimiento", back_populates="movimiento_venta")
     cupon_usuario = relationship("CuponUsuario", back_populates="movimiento_venta")
 
-class MovimientoCompra(Base):
+class MovimientosCompra(Base):
     __tablename__ = "MOVIMIENTOS_COMPRA"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
@@ -68,7 +69,7 @@ class MovimientoCompra(Base):
     movimiento = relationship("Movimiento", back_populates="compra")
     stock_items = relationship("StockXMovimiento", back_populates="compra")
 
-class MovimientoGasto(Base):
+class MovimientosGasto(Base):
     __tablename__ = "MOVIMIENTOS_GASTO"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
