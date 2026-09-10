@@ -6,8 +6,8 @@ from src.core.dependencies import verificar_autenticacion_global
 from src.domains.auth.routes import router as auth_router
 from src.domains.compras.routes import router as compras_router
 from src.domains.gestion.routes import router as gestion_router
-from src.domains.usuarios.adm.routes import router as usuarios_adm_router
-from src.domains.usuarios.cli.routes import router as usuarios_cli_router
+from src.domains.usuarios.routes import router as usuarios_adm_router
+from src.domains.usuarios.routes import router as usuarios_cli_router
 from src.domains.ventas.routes import router as ventas_router
 
 
