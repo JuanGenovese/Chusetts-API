@@ -26,16 +26,11 @@ def login(
     """
     try:
         service = AuthService(db)
-        cuenta = service.autenticar_usuario(datos.dni, datos.password)
+        usuario = service.autenticar_usuario(datos.dni, datos.password)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
-    extra_claims = {
-        "tipo_usuario": cuenta.tipo_usuario,
-        "usuario_adm_id": cuenta.usuario_adm_id,
-        "usuario_cli_id": cuenta.usuario_cli_id
-    }
-    access_token = generar_token_acceso(subject=str(cuenta.dni), info_extra=extra_claims)
+    access_token = generar_token_acceso(subject=str(usuario.dni))
     return TokenResponse(access_token=access_token, token_type="bearer")
 
 

@@ -47,6 +47,7 @@ class AuthService:
     
     def autenticar_usuario(self, dni: str, password: str) -> CuentaAuth:
         cuenta = self.obtener_cuenta_por_dni(dni)
+        
         if not cuenta:
             raise ValueError("Credenciales inválidas (DNI o contraseña incorrecta).")
         
@@ -55,6 +56,12 @@ class AuthService:
     
         if not verificar_contrasena(password, str(cuenta.password_hash)):
             raise ValueError("Credenciales inválidas (DNI o contraseña incorrecta).")
+
+        usuario = self.db.query(Usuarios).filter(Usuarios.cuenta_id == cuenta.id).first()
+        if not usuario:
+            self.db.query(CuentaAuth).filter(CuentaAuth.id == cuenta.id).delete()
+            self.db.commit()
+            return None
     
-        return cuenta
+        return usuario
     
