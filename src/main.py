@@ -9,6 +9,8 @@ from src.domains.gestion.routes import router as gestion_router
 from src.domains.usuarios.routes import router as usuarios_adm_router
 from src.domains.usuarios.routes import router as usuarios_cli_router
 from src.domains.ventas.routes import router as ventas_router
+from src.db.models import *
+
 
 
 app = FastAPI(
