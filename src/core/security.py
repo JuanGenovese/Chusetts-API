@@ -3,17 +3,18 @@ from jose import jwt
 from passlib.context import CryptContext
 from src.core.config import settings
 from src.core.schemas import TokenPayload
+import bcrypt
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def verificar_contrasena(contrasena_texto_plano: str, contrasena_hasheada: str) -> bool:
     """Verifica si una contraseña en texto plano coincide con su hash."""
-    return pwd_context.verify(contrasena_texto_plano, contrasena_hasheada)
+    return bcrypt.checkpw(contrasena_texto_plano.encode('utf-8'), contrasena_hasheada.encode('utf-8'))
 
 def generar_contrasena_hasheada(contrasena: str) -> str:
     """Genera el hash bcrypt de una contraseña."""
-    return pwd_context.hash(contrasena)
+    return bcrypt.hashpw(contrasena.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
 def generar_token_acceso(
     subject: str,
