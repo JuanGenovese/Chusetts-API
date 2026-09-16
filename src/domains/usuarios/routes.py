@@ -3,9 +3,8 @@ from sqlalchemy.orm import Session
 from src.db.database import get_db
 from src.core.dependencies import requerir_roles
 from src.domains.usuarios.schemas import (
-    UsuarioAdmCreate,
-    UsuarioAdmUpdateDatos,
-    UsuarioAdmUpdateRol,
+    UsuarioUpdateDatos,
+    UsuarioUpdateRol,
 )
 from src.domains.usuarios.services import UsuariosService
 
@@ -43,46 +42,10 @@ def obtener_usuarios(
             detail=str(e)
         )
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
-def crear_nuevo_usuario(
-    usuario_data: UsuarioAdmCreate,
-    db: Session = Depends(get_db)
-):
-    """Crea un nuevo usuario del lado administrativo"""
-    try:
-        service = UsuariosService(db)
-        response = service.crear_usuario(usuario_data.model_dump())
-
-        rows = response.get("rows", [])
-        if not rows:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="No se pudo crear el usuario"
-            )
-            
-        db.commit()
-        return {
-            "message": "Usuario administrativo creado exitosamente",
-            "data": rows[0]
-        }
-    
-    except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
-
 @router.patch("/{usuario_id}/datos", status_code=status.HTTP_200_OK)
 def actualizar_datos_usuario(
     usuario_id: int,
-    usuario_data: UsuarioAdmUpdateDatos,
+    usuario_data: UsuarioUpdateDatos,
     db: Session = Depends(get_db)
 ):
     """Actualiza nombre, apellido y/o DNI de un usuario administrativo"""
@@ -117,7 +80,7 @@ def actualizar_datos_usuario(
 @router.patch("/{usuario_id}/rol", status_code=status.HTTP_200_OK)
 def actualizar_rol_usuario(
     usuario_id: int,
-    usuario_data: UsuarioAdmUpdateRol,
+    usuario_data: UsuarioUpdateRol,
     db: Session = Depends(get_db)
 ):
     """Actualiza el rol de un usuario administrativo"""

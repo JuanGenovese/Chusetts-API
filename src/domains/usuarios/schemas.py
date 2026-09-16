@@ -2,7 +2,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from typing import Literal
 
 
-class UsuarioAdmCreate(BaseModel):
+class UsuarioCreate(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
 
     nombre: str = Field(..., min_length=1, max_length=100)
@@ -11,7 +11,7 @@ class UsuarioAdmCreate(BaseModel):
     rol_id: int
 
 
-class UsuarioAdmUpdateDatos(BaseModel):
+class UsuarioUpdateDatos(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
 
     nombre: str | None = Field(None, min_length=1, max_length=100)
@@ -25,6 +25,6 @@ class UsuarioAdmUpdateDatos(BaseModel):
         return self
 
 
-class UsuarioAdmUpdateRol(BaseModel):
+class UsuarioUpdateRol(BaseModel):
     rol_id: Literal[0, 1, 2]
 
