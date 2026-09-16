@@ -9,6 +9,7 @@ from src.core.security import decodificar_token_acceso
 from src.db.database import get_db
 from src.db.modelos.auth import CuentaAuth
 from src.domains.auth.services import AuthService
+from src.db.modelos.usuarios import Usuarios
 
 security_scheme = HTTPBearer(auto_error=False)
 
@@ -69,35 +70,37 @@ def verificar_autenticacion_global(
             detail="Cuenta de usuario no encontrada o inactiva.",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    
+    usuario = db.query(Usuarios).filter(Usuarios.cuenta_id == cuenta.id).first()
 
     # Inyectar la cuenta autenticada en el estado del request
-    request.state.cuenta_actual = cuenta
-    return cuenta
+    request.state.usuario_actual = usuario
+    return usuario
 
 
-def obtener_cuenta_actual(request: Request) -> CuentaAuth:
+def obtener_usuario_actual(request: Request) -> Usuarios:
     """Obtiene la cuenta autenticada almacenada en la request por la Puerta 2."""
-    cuenta = getattr(request.state, "cuenta_actual", None)
-    if not cuenta:
+    usuario = getattr(request.state, "usuario_actual", None)
+    if not usuario:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="No hay una cuenta de usuario autenticada en esta sesión.",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return cuenta
+    return usuario
 
 
-def requerir_roles(*roles_permitidos: str) -> Callable[..., CuentaAuth]:
+def requerir_roles(*roles_permitidos: int) -> Callable[..., Usuarios]:
     """
     Puerta 3: Autorización por Roles (RBAC).
     Verifica que el usuario autenticado tenga uno de los roles autorizados.
     """
-    def verificador_rol(cuenta: CuentaAuth = Depends(obtener_cuenta_actual)) -> CuentaAuth:
-        if cuenta.tipo_usuario not in roles_permitidos:
+    def verificador_rol(usuario: Usuarios = Depends(obtener_usuario_actual)) -> Usuarios:
+        if usuario.rol_id is not 0 or usuario.rol_id not in roles_permitidos:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"Acceso denegado. Se requiere uno de los siguientes roles: {list(roles_permitidos)}"
             )
-        return cuenta
+        return usuario
 
     return verificador_rol
