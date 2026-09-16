@@ -9,8 +9,8 @@ from src.domains.auth.schemas import (
 )
 from src.domains.auth.services import AuthService
 from src.core.security import generar_token_acceso
-from src.core.dependencies import obtener_cuenta_actual
-from src.db.modelos.auth import CuentaAuth
+from src.core.dependencies import obtener_usuario_actual
+from src.db.modelos.usuarios import Usuarios
 
 
 router = APIRouter(prefix="/auth", tags=["Autenticación"])
@@ -52,10 +52,10 @@ def register_auth_account(
 
 @router.get("/me", response_model=CuentaAuthResponse)
 def get_me(
-    cuenta_actual: CuentaAuth = Depends(obtener_cuenta_actual),
+    usuario_actual: Usuarios = Depends(obtener_usuario_actual),
     db: Session = Depends(get_db)
 ):
     """
     Retorna la información de la cuenta autenticada según el token JWT provisto.
     """
-    return cuenta_actual
+    return usuario_actual
