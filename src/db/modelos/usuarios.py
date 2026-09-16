@@ -17,11 +17,11 @@ class Usuarios(Base):
     rol_id = Column(Integer, ForeignKey("ROLES.id"), nullable=False)
     activo = Column(Boolean, default=True, nullable=False)
 
-    cuenta = relationship("CuentaAuth", back_populates="usuario")
+    cuenta = relationship("CuentaAuth", back_populates="usuarios")
     role = relationship("Roles", back_populates="usuarios")
-    turnos = relationship("TurnoCaja", back_populates="usuario")
+    turnos = relationship("TurnosCaja", back_populates="usuario")
     puntos = relationship("Puntos", back_populates="usuario")
-    cupones = relationship("CuponUsuario", back_populates="usuario")
+    cupones = relationship("CuponesUsuario", back_populates="usuario")
 
 class Roles(Base):
     __tablename__ = "ROLES"

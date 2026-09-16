@@ -11,7 +11,7 @@ class StockXMovimiento(Base):
     cantidad = Column(Integer, nullable=False)
     costo_unitario = Column(Float, nullable=False)
 
-    compra = relationship("MovimientoCompra", back_populates="stock_items")
+    compra = relationship("MovimientosCompra", back_populates="stock_items")
     stock = relationship("Stock", back_populates="movimientos_compra")
 
 class Stock(Base):
@@ -58,5 +58,5 @@ class ProductoComposicion(Base):
     id_stock = Column(Integer, ForeignKey("STOCK.id"), nullable=False)
     cantidad_usada = Column(Float, nullable=False)
 
-    producto = relationship("Producto", back_populates="composiciones")
+    producto = relationship("Productos", back_populates="composiciones")
     stock_item = relationship("Stock", back_populates="usos_composicion")

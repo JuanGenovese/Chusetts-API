@@ -2,6 +2,7 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from src.core.config import settings
 from src.core.dependencies import verificar_autenticacion_global
+import src.db.models  # noqa: F401 — registers all SQLAlchemy mappers at startup
 
 from src.domains.auth.routes import router as auth_router
 from src.domains.compras.routes import router as compras_router

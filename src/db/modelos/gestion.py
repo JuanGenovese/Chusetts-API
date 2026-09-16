@@ -8,7 +8,7 @@ class MediosPago(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     medio_pago = Column(String(20), unique=True, nullable=False)
 
-    movimientos = relationship("MediosPagoxMovimiento", back_populates="medio_pago")
+    movimientos = relationship("MediosPagoxMovimientos", back_populates="medio_pago")
 
 class MediosPagoxMovimientos(Base):
     __tablename__ = "MEDIOS_PAGO_X_MOVIMIENTOS"
@@ -18,8 +18,8 @@ class MediosPagoxMovimientos(Base):
     id_medio_pago = Column(Integer, ForeignKey("MEDIOS_PAGO.id"), nullable=False)
     monto = Column(Float, nullable=False)
 
-    movimiento = relationship("Movimiento", back_populates="medios_pago")
-    medio_pago = relationship("MedioPago", back_populates="movimientos")
+    movimiento = relationship("Movimientos", back_populates="medios_pago")
+    medio_pago = relationship("MediosPago", back_populates="movimientos")
 
 class Movimientos(Base):
     __tablename__ = "MOVIMIENTOS"
@@ -29,10 +29,10 @@ class Movimientos(Base):
     fecha = Column(DateTime, nullable=False)
 
     tipo = relationship("TiposMovimientos", back_populates="movimientos")
-    medios_pago = relationship("MediosPagoxMovimiento", back_populates="movimiento")
-    venta = relationship("MovimientoVentas", back_populates="movimiento", uselist=False)
-    compra = relationship("MovimientoCompra", back_populates="movimiento", uselist=False)
-    gasto = relationship("MovimientoGasto", back_populates="movimiento", uselist=False)
+    medios_pago = relationship("MediosPagoxMovimientos", back_populates="movimiento")
+    venta = relationship("MovimientosVentas", back_populates="movimiento", uselist=False)
+    compra = relationship("MovimientosCompra", back_populates="movimiento", uselist=False)
+    gasto = relationship("MovimientosGasto", back_populates="movimiento", uselist=False)
 
 class TiposMovimientos(Base):
     __tablename__ = "TIPOS_MOVIMIENTOS"
@@ -40,7 +40,7 @@ class TiposMovimientos(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     tipo = Column(String(20), unique=True, nullable=False)
 
-    movimientos = relationship("Movimiento", back_populates="tipo")
+    movimientos = relationship("Movimientos", back_populates="tipo")
 
 class MovimientosVentas(Base):
     __tablename__ = "MOVIMIENTOS_VENTAS"
@@ -52,10 +52,10 @@ class MovimientosVentas(Base):
     monto_total = Column(Float, nullable=False)
     fecha = Column(DateTime, nullable=False)
 
-    movimiento = relationship("Movimiento", back_populates="venta")
-    turno = relationship("TurnoCaja", back_populates="movimientos")
+    movimiento = relationship("Movimientos", back_populates="venta")
+    turno = relationship("TurnosCaja", back_populates="movimientos")
     productos = relationship("ProductoXMovimiento", back_populates="movimiento_venta")
-    cupon_usuario = relationship("CuponUsuario", back_populates="movimiento_venta")
+    cupon_usuario = relationship("CuponesUsuario", back_populates="movimiento_venta")
 
 class MovimientosCompra(Base):
     __tablename__ = "MOVIMIENTOS_COMPRA"
@@ -66,7 +66,7 @@ class MovimientosCompra(Base):
     costo_total = Column(Float, nullable=False)
     detalle = Column(String(100), nullable=True)
 
-    movimiento = relationship("Movimiento", back_populates="compra")
+    movimiento = relationship("Movimientos", back_populates="compra")
     stock_items = relationship("StockXMovimiento", back_populates="compra")
 
 class MovimientosGasto(Base):
@@ -79,4 +79,4 @@ class MovimientosGasto(Base):
     importe = Column(Float, nullable=False)
     detalle = Column(String(100), nullable=True)
 
-    movimiento = relationship("Movimiento", back_populates="gasto")
+    movimiento = relationship("Movimientos", back_populates="gasto")

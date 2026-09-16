@@ -14,7 +14,7 @@ class TurnosCaja(Base):
     observacion_cierre = Column(String(100), nullable=True)
 
     usuario = relationship("Usuarios", back_populates="turnos")
-    movimientos = relationship("MovimientoVentas", back_populates="turno")
+    movimientos = relationship("MovimientosVentas", back_populates="turno")
 
 class Cupones(Base):
     __tablename__ = "CUPONES"
@@ -27,7 +27,7 @@ class Cupones(Base):
     fecha_hasta = Column(Date, nullable=True)
     activo = Column(Boolean, default=True, nullable=False)
 
-    usuarios_asignados = relationship("CuponUsuario", back_populates="cupon")
+    usuarios_asignados = relationship("CuponesUsuario", back_populates="cupon")
 
 class CuponesUsuario(Base):
     __tablename__ = "CUPONES_USUARIO"
@@ -39,7 +39,7 @@ class CuponesUsuario(Base):
 
     usuario = relationship("Usuarios", back_populates="cupones")
     cupon = relationship("Cupones", back_populates="usuarios_asignados")
-    movimiento_venta = relationship("MovimientoVentas", back_populates="cupon_usuario", uselist=False)
+    movimiento_venta = relationship("MovimientosVentas", back_populates="cupon_usuario", uselist=False)
 
 class Productos(Base):
     __tablename__ = "PRODUCTOS"
@@ -63,5 +63,5 @@ class ProductoXMovimiento(Base):
     cantidad_producto = Column(Integer, nullable=False)
     precio = Column(Float, nullable=False)
 
-    movimiento_venta = relationship("MovimientoVentas", back_populates="productos")
-    producto = relationship("Producto")
+    movimiento_venta = relationship("MovimientosVentas", back_populates="productos")
+    producto = relationship("Productos")

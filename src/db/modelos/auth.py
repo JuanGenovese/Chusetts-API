@@ -11,4 +11,4 @@ class CuentaAuth(Base, TimestampMixin):
     password_hash = Column(String(255), nullable=False)
     activo = Column(Boolean, default=True, nullable=False)
 
-    usuario = relationship("Usuarios", back_populates="cuenta", uselist=False)
+    usuarios = relationship("Usuarios", back_populates="cuenta", uselist=False)
