@@ -11,7 +11,7 @@ from src.domains.usuarios.services import UsuariosService
 router = APIRouter(
     prefix="/usuarios", 
     tags=["Usuarios"],
-    dependencies=[Depends(requerir_roles("ADM"))]
+    dependencies=[Depends(requerir_roles(1))]
 )
 
 @router.get("/", status_code=status.HTTP_200_OK)
