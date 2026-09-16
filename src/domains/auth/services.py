@@ -45,7 +45,7 @@ class AuthService:
         
         return nuevo_usuario
     
-    def autenticar_usuario(self, dni: str, password: str) -> CuentaAuth:
+    def autenticar_usuario(self, dni: str, password: str) -> Usuarios:
         cuenta = self.obtener_cuenta_por_dni(dni)
         
         if not cuenta:
