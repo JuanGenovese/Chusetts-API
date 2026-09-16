@@ -5,8 +5,8 @@ from typing import Literal
 class LoginRequest(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
 
-    dni: str = Field(..., pattern=r"^\d{7,8}$", description="DNI del usuario como credencial única")
-    password: str = Field(..., min_length=4, max_length=74, description="Contraseña en texto plano")
+    dni: str = Field(..., pattern=r"^\d{7,8}$")
+    password: str = Field(..., min_length=4, max_length=74)
 
 class TokenResponse(BaseModel):
     access_token: str
