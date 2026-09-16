@@ -46,7 +46,6 @@ class AuthService:
         return nuevo_usuario
     
     def autenticar_usuario(self, dni: str, password: str) -> CuentaAuth:
-        """Valida las credenciales DNI y contraseña contra el esquema auth."""
         cuenta = self.obtener_cuenta_por_dni(dni)
         if not cuenta:
             raise ValueError("Credenciales inválidas (DNI o contraseña incorrecta).")
