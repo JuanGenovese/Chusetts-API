@@ -8,16 +8,6 @@ class UsuariosService:
     def get_usuarios(self) -> dict:
         response = connection('sp_get_usuarios', {}, db=self.db)
         return response
-     
-    def crear_usuario(self, datos: dict) -> dict:
-        params = {
-            'p_nombre': datos.get('nombre'),
-            'p_apellido': datos.get('apellido'),
-            'p_dni': datos.get('dni'),
-            'p_rol_id': datos.get('rol_id')
-        }
-        response = connection('sp_crear_usuario', params, db=self.db)
-        return response
     
     def actualizar_usuario(self, usuario_id: int, datos: dict) -> dict:
         params = {

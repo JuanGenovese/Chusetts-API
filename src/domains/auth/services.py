@@ -1,42 +1,61 @@
 from sqlalchemy.orm import Session
+from datetime import datetime
 from src.db.modelos.auth import CuentaAuth
+from src.db.modelos.usuarios import Usuarios
 from src.domains.auth.schemas import CuentaAuthCreate
 from src.core.security import generar_contrasena_hasheada, verificar_contrasena
+from src.db.database import connection
 
-def obtener_cuenta_por_dni(db: Session, dni: str) -> CuentaAuth | None:
-    """Busca una cuenta en el esquema auth por su DNI."""
-    return db.query(CuentaAuth).filter(CuentaAuth.dni == dni).first()
+class AuthService:
+    def __init__(self, db: Session):
+        self.db = db
 
-def crear_cuenta_auth(db: Session, datos: CuentaAuthCreate) -> CuentaAuth:
-    """Crea una nueva cuenta de acceso en el esquema auth vinculada al esquema public."""
-    existente = obtener_cuenta_por_dni(db, datos.dni)
-    if existente:
-        raise ValueError(f"Ya existe una cuenta registrada para el DNI '{datos.dni}'.")
+    def obtener_cuenta_por_dni(self, dni: str) -> CuentaAuth | None:
+        return self.db.query(CuentaAuth).filter(CuentaAuth.dni == dni).first()
 
-    hashed_pw = generar_contrasena_hasheada(datos.password)
-    nueva_cuenta = CuentaAuth(
-        dni=datos.dni,
-        password_hash=hashed_pw,
-        tipo_usuario=datos.tipo_usuario,
-        usuario_adm_id=datos.usuario_adm_id,
-        usuario_cli_id=datos.usuario_cli_id,
-        activo=True
-    )
-    db.add(nueva_cuenta)
-    db.commit()
-    db.refresh(nueva_cuenta)
-    return nueva_cuenta
-
-def autenticar_usuario(db: Session, dni: str, password: str) -> CuentaAuth:
-    """Valida las credenciales DNI y contraseña contra el esquema auth."""
-    cuenta = obtener_cuenta_por_dni(db, dni)
-    if not cuenta:
-        raise ValueError("Credenciales inválidas (DNI o contraseña incorrecta).")
+    def crear_cuenta(self, datos: CuentaAuthCreate) -> Usuarios:
+        existente = self.obtener_cuenta_por_dni(datos.dni)
+        if existente:
+            raise ValueError(f"Ya existe una cuenta registrada para el DNI '{datos.dni}'.")
     
-    if not cuenta.activo:
-        raise ValueError("La cuenta de usuario se encuentra inactiva.")
+        hashed_pw = generar_contrasena_hasheada(datos.password)
+        nueva_cuenta = CuentaAuth(
+            dni=datos.dni,
+            password_hash=hashed_pw,
+            activo=True
+        )
+        self.db.add(nueva_cuenta)
+        self.db.flush()  # populate nueva_cuenta.id before using it as FK
 
-    if not verificar_contrasena(password, str(cuenta.password_hash)):
-        raise ValueError("Credenciales inválidas (DNI o contraseña incorrecta).")
+        fecha_nac = datetime.strptime(datos.fecha_nac, "%d/%m/%Y").date()
 
-    return cuenta
+        nuevo_usuario = Usuarios(
+            nombre=datos.nombre,
+            apellido=datos.apellido,
+            dni=datos.dni,
+            email=datos.email,
+            telefono=datos.telefono,
+            fecha_nac=fecha_nac,
+            rol_id=datos.rol_id,
+            cuenta_id=nueva_cuenta.id
+        )
+        self.db.add(nuevo_usuario)
+        self.db.flush()
+        self.db.commit()
+        
+        return nuevo_usuario
+    
+    def autenticar_usuario(self, dni: str, password: str) -> CuentaAuth:
+        """Valida las credenciales DNI y contraseña contra el esquema auth."""
+        cuenta = self.obtener_cuenta_por_dni(dni)
+        if not cuenta:
+            raise ValueError("Credenciales inválidas (DNI o contraseña incorrecta).")
+        
+        if not cuenta.activo:
+            raise ValueError("La cuenta de usuario se encuentra inactiva.")
+    
+        if not verificar_contrasena(password, str(cuenta.password_hash)):
+            raise ValueError("Credenciales inválidas (DNI o contraseña incorrecta).")
+    
+        return cuenta
+    

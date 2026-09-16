@@ -2,15 +2,6 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from typing import Literal
 
 
-class UsuarioCreate(BaseModel):
-    model_config = ConfigDict(str_strip_whitespace=True)
-
-    nombre: str = Field(..., min_length=1, max_length=100)
-    apellido: str = Field(..., min_length=1, max_length=100)
-    dni: str = Field(..., pattern=r"^\d{7,8}$")
-    rol_id: int
-
-
 class UsuarioUpdateDatos(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
 

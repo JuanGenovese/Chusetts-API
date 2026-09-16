@@ -8,7 +8,7 @@ from src.core.config import settings
 from src.core.security import decodificar_token_acceso
 from src.db.database import get_db
 from src.db.modelos.auth import CuentaAuth
-from src.domains.auth.services import obtener_cuenta_por_dni
+from src.domains.auth.services import AuthService
 
 security_scheme = HTTPBearer(auto_error=False)
 
@@ -62,7 +62,7 @@ def verificar_autenticacion_global(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    cuenta = obtener_cuenta_por_dni(db, dni)
+    cuenta = AuthService(db).obtener_cuenta_por_dni(dni)
     if cuenta is None or not cuenta.activo:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
