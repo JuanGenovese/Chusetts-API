@@ -96,7 +96,7 @@ def requerir_roles(*roles_permitidos: int) -> Callable[..., Usuarios]:
     Verifica que el usuario autenticado tenga uno de los roles autorizados.
     """
     def verificador_rol(usuario: Usuarios = Depends(obtener_usuario_actual)) -> Usuarios:
-        if usuario.rol_id is not 0 or usuario.rol_id not in roles_permitidos:
+        if usuario.rol_id is not 0 and usuario.rol_id not in roles_permitidos:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"Acceso denegado. Se requiere uno de los siguientes roles: {list(roles_permitidos)}"
