@@ -48,14 +48,3 @@ def register_auth_account(
         return nueva_cuenta
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-
-
-@router.get("/me", response_model=CuentaAuthResponse)
-def get_me(
-    usuario_actual: Usuarios = Depends(obtener_usuario_actual),
-    db: Session = Depends(get_db)
-):
-    """
-    Retorna la información de la cuenta autenticada según el token JWT provisto.
-    """
-    return usuario_actual
