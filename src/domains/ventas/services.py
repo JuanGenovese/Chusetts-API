@@ -14,9 +14,7 @@ from src.domains.ventas.schemas import (
     TicketCreateRequest,
     TicketResponse,
     TicketItemResponse,
-    TicketPagoResponse,
-    CatalogoItemResponse,
-    MedioPagoResponse
+    TicketPagoResponse
 )
 
 
@@ -58,7 +56,7 @@ class VentasService:
             )
             if not turno_activo:
                 raise ValueError("No se puede emitir una venta sin un turno de caja abierto para el usuario.")
-            turno_id = turno_activo.id
+            turno_id = turno_activo.id  # type: ignore
         else:
             turno = self.db.query(TurnosCaja).filter(TurnosCaja.id == turno_id).first()
             if not turno or turno.fecha_hasta is not None:
@@ -78,7 +76,7 @@ class VentasService:
         ahora = datetime.now()
 
         movimiento = Movimientos(
-            tipo_id=tipo_venta.id,
+            tipo_id=tipo_venta.id,  # type: ignore
             fecha=ahora
         )
         self.db.add(movimiento)
@@ -86,7 +84,7 @@ class VentasService:
 
         # 4. Crear Movimiento de Venta
         mov_venta = MovimientosVentas(
-            movimiento_id=movimiento.id,
+            movimiento_id=movimiento.id,  # type: ignore
             turno_caja_id=turno_id,
             monto_total=total_productos,
             fecha=ahora
@@ -102,7 +100,7 @@ class VentasService:
                 raise ValueError(f"Producto con ID {item.id_producto} no encontrado.")
 
             pxm = ProductoXMovimiento(
-                id_movimiento_venta=mov_venta.id,
+                id_movimiento_venta=mov_venta.id,  # type: ignore
                 id_producto=item.id_producto,
                 cantidad_producto=item.cantidad,
                 precio=item.precio
@@ -119,13 +117,13 @@ class VentasService:
             for comp in composiciones:
                 stock_item = self.db.query(Stock).filter(Stock.id == comp.id_stock).first()
                 if stock_item:
-                    stock_item.cantidad -= (comp.cantidad_usada * item.cantidad)
+                    stock_item.cantidad -= (comp.cantidad_usada * item.cantidad)  # type: ignore
 
             items_response.append(
                 TicketItemResponse(
-                    id=pxm.id,
+                    id=pxm.id,  # type: ignore
                     id_producto=item.id_producto,
-                    nombre_producto=prod.nombre,
+                    nombre_producto=prod.nombre,  # type: ignore
                     cantidad=item.cantidad,
                     precio=item.precio,
                     subtotal=round(item.cantidad * item.precio, 2)
@@ -140,7 +138,7 @@ class VentasService:
                 raise ValueError(f"Medio de pago con ID {pago.id_medio_pago} no encontrado.")
 
             mxp = MediosPagoxMovimientos(
-                id_movimiento=movimiento.id,
+                id_movimiento=movimiento.id,  # type: ignore
                 id_medio_pago=pago.id_medio_pago,
                 monto=pago.monto
             )
@@ -149,7 +147,7 @@ class VentasService:
             pagos_response.append(
                 TicketPagoResponse(
                     id_medio_pago=pago.id_medio_pago,
-                    nombre_medio_pago=medio.medio_pago,
+                    nombre_medio_pago=medio.medio_pago,  # type: ignore
                     monto=pago.monto
                 )
             )
@@ -157,9 +155,9 @@ class VentasService:
         self.db.commit()
 
         return TicketResponse(
-            id=mov_venta.id,
-            movimiento_id=movimiento.id,
-            turno_caja_id=turno_id,
+            id=mov_venta.id,  # type: ignore
+            movimiento_id=movimiento.id,  # type: ignore
+            turno_caja_id=turno_id,  # type: ignore
             fecha=ahora,
             monto_total=total_productos,
             items=items_response,
@@ -184,9 +182,9 @@ class VentasService:
             )
             items_res = [
                 TicketItemResponse(
-                    id=pxm.id,
-                    id_producto=pxm.id_producto,
-                    nombre_producto=p.nombre,
+                    id=pxm.id,  # type: ignore
+                    id_producto=pxm.id_producto,  # type: ignore
+                    nombre_producto=p.nombre,  # type: ignore
                     cantidad=pxm.cantidad_producto,
                     precio=pxm.precio,
                     subtotal=round(pxm.cantidad_producto * pxm.precio, 2)
@@ -203,8 +201,8 @@ class VentasService:
             )
             pagos_res = [
                 TicketPagoResponse(
-                    id_medio_pago=mxp.id_medio_pago,
-                    nombre_medio_pago=mp.medio_pago,
+                    id_medio_pago=mxp.id_medio_pago,  # type: ignore
+                    nombre_medio_pago=mp.medio_pago,  # type: ignore
                     monto=mxp.monto
                 )
                 for mxp, mp in pagos
@@ -212,11 +210,11 @@ class VentasService:
 
             resultado.append(
                 TicketResponse(
-                    id=v.id,
-                    movimiento_id=v.movimiento_id,
-                    turno_caja_id=v.turno_caja_id,
-                    fecha=v.fecha,
-                    monto_total=v.monto_total,
+                    id=v.id,  # type: ignore
+                    movimiento_id=v.movimiento_id,  # type: ignore
+                    turno_caja_id=v.turno_caja_id,  # type: ignore
+                    fecha=v.fecha,  # type: ignore
+                    monto_total=float(v.monto_total),  # type: ignore
                     items=items_res,
                     pagos=pagos_res
                 )
@@ -244,13 +242,13 @@ class VentasService:
             for comp in composiciones:
                 stock_item = self.db.query(Stock).filter(Stock.id == comp.id_stock).first()
                 if stock_item:
-                    stock_item.cantidad += (comp.cantidad_usada * pxm.cantidad_producto)
+                    stock_item.cantidad += (comp.cantidad_usada * pxm.cantidad_producto)  # type: ignore
 
         # Actualizar tipo de movimiento a Anulación si existe
         mov = self.db.query(Movimientos).filter(Movimientos.id == venta.movimiento_id).first()
         if mov:
             tipo_anulacion = self._obtener_o_crear_tipo_movimiento("Anulacion Venta")
-            mov.tipo_id = tipo_anulacion.id
+            mov.tipo_id = tipo_anulacion.id  # type: ignore
 
         self.db.commit()
         return {

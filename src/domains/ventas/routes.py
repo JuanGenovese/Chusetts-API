@@ -49,7 +49,7 @@ def emitir_ticket(
     """
     service = VentasService(db)
     try:
-        ticket = service.crear_ticket(usuario_id=usuario.id, datos=datos)
+        ticket = service.crear_ticket(usuario.id, datos)  # type: ignore
         return ticket
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

@@ -1,6 +1,5 @@
 import unittest
 
-import src.db.models
 from src.domains.auth.schemas import UsuarioMeResponse
 from src.db.modelos.usuarios import Usuarios, Roles
 
@@ -22,15 +21,15 @@ class TestAuthMe(unittest.TestCase):
         usuario.role = rol
 
         response = UsuarioMeResponse(
-            id=usuario.id,
-            nombre=usuario.nombre,
-            apellido=usuario.apellido,
-            dni=usuario.dni,
-            email=usuario.email,
-            telefono=usuario.telefono,
-            rol_id=usuario.rol_id,
-            rol=usuario.role.rol,
-            activo=usuario.activo
+            id=int(usuario.id),  # type: ignore
+            nombre=str(usuario.nombre),  # type: ignore
+            apellido=str(usuario.apellido),  # type: ignore
+            dni=str(usuario.dni),  # type: ignore
+            email=str(usuario.email),  # type: ignore
+            telefono=str(usuario.telefono),  # type: ignore
+            rol_id=int(usuario.rol_id),  # type: ignore
+            rol=str(usuario.role.rol),  # type: ignore
+            activo=bool(usuario.activo)  # type: ignore
         )
 
         self.assertEqual(response.id, 5)
