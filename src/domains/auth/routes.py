@@ -5,7 +5,8 @@ from src.domains.auth.schemas import (
     LoginRequest, 
     TokenResponse, 
     CuentaAuthCreate, 
-    CuentaAuthResponse
+    CuentaAuthResponse,
+    UsuarioMeResponse
 )
 from src.domains.auth.services import AuthService
 from src.core.security import generar_token_acceso
@@ -48,3 +49,23 @@ def register_auth_account(
         return nueva_cuenta
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@router.get("/me", response_model=UsuarioMeResponse)
+def get_current_user_profile(
+    usuario: Usuarios = Depends(obtener_usuario_actual)
+):
+    """
+    Retorna los datos del usuario autenticado a partir del token JWT.
+    """
+    return UsuarioMeResponse(
+        id=usuario.id,
+        nombre=usuario.nombre,
+        apellido=usuario.apellido,
+        dni=usuario.dni,
+        email=usuario.email,
+        telefono=usuario.telefono,
+        rol_id=usuario.rol_id,
+        rol=usuario.role.rol if usuario.role else None,
+        activo=usuario.activo,
+    )
