@@ -48,3 +48,18 @@ class CuentaAuthResponse(BaseModel):
 class CuentaAuthDB(CuentaAuthCreate):
     id: int
     activo: bool
+
+
+class UsuarioMeResponse(BaseModel):
+    id: int
+    nombre: str
+    apellido: str
+    dni: str
+    email: str
+    telefono: str | None = None
+    rol_id: int
+    rol: str | None = None
+    activo: bool
+
+    model_config = ConfigDict(from_attributes=True)
+
